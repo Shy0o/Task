@@ -41,20 +41,31 @@ async function main() {
     }
 }
 
+// 假设已声明 Mylink 和 $ 等对象
+
 async function getCookie() {
     const authorization = $request.headers["authorization"];
     const cookie = $request.headers["Cookie"];
     const deviceID = $request.headers["HTTP-HSH-DeviceID"];
-    
+
     if (!authorization || !cookie || !deviceID) {
         return;
     }
-    const body = JSON.parse($response.body);
-    const phone = body.body.phone;
-    const newData = { "userId": phone, "authorization": authorization };
+
+    const body = JSON.parse($response.body); // 使用 JSON.parse 解析响应体
+    const phone = body.body.phone; // 提取 phone 参数
+    const newData = { 
+        "userId": phone, 
+        "authorization": authorization,
+        "cookie": cookie,
+        "deviceID": deviceID
+    };
+
     const index = Mylink.findIndex(e => e.userId == newData.userId);
     if (index !== -1) {
-        if (Mylink[index].authorization == newData.authorization) {
+        if (Mylink[index].authorization == newData.authorization &&
+            Mylink[index].cookie == newData.cookie &&
+            Mylink[index].deviceID == newData.deviceID) {
             return;
         } else {
             Mylink[index] = newData;
